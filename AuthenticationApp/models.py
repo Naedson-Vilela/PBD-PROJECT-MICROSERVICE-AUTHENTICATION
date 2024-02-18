@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, Group, Permission
 
+from django.contrib.auth.models import AbstractUser
 
 class UserManager(BaseUserManager):
     use_in_migration = True
@@ -26,7 +27,6 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-from django.contrib.auth.models import AbstractUser
 
 class UserData(AbstractUser):
     username = None
@@ -43,12 +43,6 @@ class UserData(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
-    # Adicione related_name='user_data_groups'
-    # groups = models.ManyToManyField(Group, blank=True, related_name='user_data_groups')
-    #
-    # # Adicione related_name='user_data_permissions'
-    # user_permissions = models.ManyToManyField(Permission, blank=True, related_name='user_data_permissions')
-
     def __str__(self):
         return self.name
 
@@ -62,15 +56,6 @@ class Service(models.Model):
         verbose_name_plural = 'Services'
 
 
-
-class User(models.Model):
-    name = models.CharField(max_length=255)
-    username = models.CharField(max_length=255)
-    password = models.CharField(max_length=255)
-
-    class Meta:
-        verbose_name = 'Users'
-        verbose_name_plural = 'Users'
 
 
 class Group(models.Model):
@@ -91,7 +76,7 @@ class Permission(models.Model):
         verbose_name_plural = 'Permissions'
 
 class UserService(models.Model):
-    user_id = models.ForeignKey(User, related_name='userServices', on_delete=models.CASCADE)
+    user_id = models.ForeignKey(UserData, related_name='userServices', on_delete=models.CASCADE)
     service_id = models.ForeignKey(Service, related_name='serviceUsers', on_delete=models.CASCADE)
 
     class Meta:
@@ -99,7 +84,7 @@ class UserService(models.Model):
         verbose_name_plural = 'UserServices'
 
 class UserGroup(models.Model):
-    user_id = models.ForeignKey(User, related_name='userGroups', on_delete=models.CASCADE)
+    user_id = models.ForeignKey(UserData, related_name='userGroups', on_delete=models.CASCADE)
     group_id = models.ForeignKey(Group, related_name='groupsUser', on_delete=models.CASCADE)
 
     class Meta:
