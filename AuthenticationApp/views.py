@@ -1,11 +1,14 @@
 from django.http import JsonResponse
 from rest_framework import generics
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import AccessToken, TokenError
 
 from .models import UserData, Service, Group, Permission, UserService, UserGroup
 from .serializers import UserSerializer, ServiceSerializer, GroupSerializer, PermissionSerializer, \
     UserServiceSerializer, UserGroupSerializer
 from rest_framework.response import Response
+from rest_framework import status
+
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -25,6 +28,20 @@ class RegisterView(APIView):
         userSerializer = UserSerializer(users, many=True)
         return JsonResponse(userSerializer.data, safe=False)
 
+
+class TokenValidationView(APIView):
+    def post(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+
+        try:
+            # Verifica se o token é válido e não expirou
+            access_token = AccessToken(token)
+            access_token.verify()
+
+            return Response({'message': 'Token válido'}, status=status.HTTP_200_OK)
+        except TokenError as e:
+            # Captura qualquer erro relacionado ao token
+            return Response({'error': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
 class ServiceApiView(generics.ListCreateAPIView):
 
