@@ -38,6 +38,7 @@ class TokenValidationView(APIView):
             access_token = AccessToken(token)
             access_token.verify()
 
+
             return Response({'message': 'Token válido'}, status=status.HTTP_200_OK)
         except TokenError as e:
             # Captura qualquer erro relacionado ao token
